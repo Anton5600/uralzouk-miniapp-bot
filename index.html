@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Баланс Ученика</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Танцевальная Школа 💃🕺</h1>
+        <div id="loading" class="info-block">Загрузка данных...</div>
+        
+        <div id="student-data" style="display: none;">
+            <p>Добро пожаловать, <strong id="student-name"></strong>!</p>
+            
+            <div class="balance-card">
+                <h2>Остаток занятий</h2>
+                <span id="balance-value">0</span>
+            </div>
+
+            <h2>Последний платеж</h2>
+            <div class="info-block">
+                <p>Сумма: <strong id="payment-amount"></strong></p>
+                <p>Дата: <strong id="payment-date"></strong></p>
+            </div>
+            
+            <h2>Расписание</h2>
+            <div class="info-block">
+                <p id="schedule"></p>
+            </div>
+            
+            <h2>Контакты</h2>
+            <div class="info-block">
+                <p id="contacts"></p>
+            </div>
+        </div>
+
+        <div id="error-message" class="error-block" style="display: none;">
+            Не удалось получить данные. Пожалуйста, убедитесь, что ваш Telegram ID зарегистрирован в школе.
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
