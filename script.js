@@ -1,5 +1,5 @@
 // --- КОНФИГУРАЦИЯ ---
-const API_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxVz9H9f_68kXx-OTDrei6XIv40qlOeTCn9kgqzvr3lywYanQLL7aw704ovceFa0GJLfw/exec'; // <-- ЗАМЕНИТЕ ЭТО
+const API_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzk3uam4KN1AUoOFi6T9sEl33kgsDkel-yF3h8gN6lr_akzie2Hsh7dc09mSkl0oxHKQA/exec'; // <-- ЗАМЕНИТЕ ЭТО
 
 // Инициализация Telegram WebApp
 const webApp = window.Telegram.WebApp;
