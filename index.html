@@ -14,7 +14,13 @@
             <div class="loading-spinner"></div>
             <p>Загрузка...</p>
         </div>
-
+ <!-- Временная кнопка для отладки - удалить после -->
+<div class="card" style="margin-top: 20px; background: #fff3cd;">
+    <h3>🔧 Отладка API</h3>
+    <button onclick="testAPI()" style="background: #856404; color: white; padding: 10px; border: none; border-radius: 5px; margin: 5px;">Тест getUserData</button>
+    <button onclick="testScheduleAPI()" style="background: #856404; color: white; padding: 10px; border: none; border-radius: 5px; margin: 5px;">Тест getSchedule</button>
+    <div id="debugResult" style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 5px;"></div>
+</div>
         <!-- Основной интерфейс -->
         <div id="mainContent" class="hidden">
             <!-- Хедер -->
@@ -99,13 +105,6 @@
                 </div>
 
                 <!-- Вкладка Контакты -->
-                <!-- Временная кнопка для отладки - удалить после -->
-<div class="card" style="margin-top: 20px; background: #fff3cd;">
-    <h3>🔧 Отладка API</h3>
-    <button onclick="testAPI()" style="background: #856404; color: white; padding: 10px; border: none; border-radius: 5px; margin: 5px;">Тест getUserData</button>
-    <button onclick="testScheduleAPI()" style="background: #856404; color: white; padding: 10px; border: none; border-radius: 5px; margin: 5px;">Тест getSchedule</button>
-    <div id="debugResult" style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 5px;"></div>
-</div>
                 <div id="contactsTab" class="tab-content">
                     <div class="card">
                         <h2>📞 Контакты школы</h2>
