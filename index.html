@@ -3,60 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Баланс Ученика | Танц. Школа</title>
-    
-    <link rel="stylesheet" href="styles.css">
-    
+    <title>Школа Танцев</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>Dance Studio ✨</h1>
-        
-        <div id="loading">Загружаем данные...</div>
-        
-        <div id="student-data" style="display: none;" class="fade-in">
-            
-            <p style="text-align: center; color: var(--hint-color); margin-bottom: 20px;">
-                Привет, <strong id="student-name" style="color: var(--text-color);">...</strong>!
-            </p>
-            
-            <div class="card balance-card">
-                <h2>Остаток занятий</h2>
-                <div class="balance-value">
-                    <span id="balance-value">0</span>
-                    <span class="balance-unit">зан.</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <h2>💳 Последняя оплата</h2>
-                <div class="info-row">
-                    <span class="label">Сумма</span>
-                    <span class="value" id="payment-amount">0 ₽</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">Дата</span>
-                    <span class="value" id="payment-date">-</span>
-                </div>
-            </div>
-            
-            <div class="card">
-                <h2>📅 Расписание</h2>
-                <div id="schedule" class="schedule-text"></div>
-            </div>
-            
-            <div class="card">
-                <h2>📞 Контакты</h2>
-                <div id="contacts" class="contacts-text"></div>
-            </div>
+    <div id="app">
+        <!-- Загрузка -->
+        <div id="loading" class="loading-container">
+            <div class="loading-spinner"></div>
+            <p>Загрузка...</p>
         </div>
 
-        <div id="error-message" class="error-block" style="display: none;">
-            Ошибка загрузки данных.
+        <!-- Основной интерфейс -->
+        <div id="mainContent" class="hidden">
+            <!-- Хедер -->
+            <header class="header">
+                <div class="header-content">
+                    <h1 class="logo">💃 Школа Танцев 🕺</h1>
+                    <div class="user-badge" id="userBadge">
+                        <span id="userRole"></span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Навигация -->
+            <nav class="tabs" id="tabs">
+                <button class="tab-btn active" data-tab="profile">Профиль</button>
+                <button class="tab-btn" data-tab="schedule">Расписание</button>
+                <button class="tab-btn" data-tab="attendance">Посещения</button>
+                <button class="tab-btn" data-tab="contacts">Контакты</button>
+            </nav>
+
+            <!-- Контент -->
+            <main class="main-content">
+                <!-- Вкладка Профиль -->
+                <div id="profileTab" class="tab-content active">
+                    <div class="card profile-card">
+                        <div class="profile-header">
+                            <h2>👤 Мой профиль</h2>
+                            <div class="balance-badge" id="balanceBadge">
+                                <span id="balanceCount">0</span> занятий
+                            </div>
+                        </div>
+                        
+                        <div class="profile-info">
+                            <div class="info-item">
+                                <span class="label">Имя:</span>
+                                <span class="value" id="userName">—</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Баланс:</span>
+                                <span class="value balance-value" id="userBalance">0 занятий</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Последний платеж:</span>
+                                <span class="value" id="lastPayment">—</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Статус:</span>
+                                <span class="value role-badge" id="userRoleBadge">Ученик</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Быстрые действия -->
+                    <div class="quick-actions">
+                        <button class="action-btn" onclick="showTab('schedule')">
+                            📅 Расписание
+                        </button>
+                        <button class="action-btn" onclick="showTab('attendance')">
+                            📊 Мои посещения
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Вкладка Расписание -->
+                <div id="scheduleTab" class="tab-content">
+                    <div class="card">
+                        <h2>📅 Расписание занятий</h2>
+                        <div id="scheduleContainer" class="schedule-container">
+                            <div class="loading-small">Загрузка расписания...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Вкладка Посещения -->
+                <div id="attendanceTab" class="tab-content">
+                    <div class="card">
+                        <h2>📊 Мои посещения</h2>
+                        <div id="attendanceContainer" class="attendance-container">
+                            <p>Загрузка данных о посещениях...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Вкладка Контакты -->
+                <div id="contactsTab" class="tab-content">
+                    <div class="card">
+                        <h2>📞 Контакты школы</h2>
+                        <div class="contact-info">
+                            <div class="contact-item">
+                                <span class="contact-icon">📍</span>
+                                <div class="contact-details">
+                                    <strong>Адрес:</strong>
+                                    <p>г. Москва, ул. Танцевальная, д. 15</p>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-icon">📞</span>
+                                <div class="contact-details">
+                                    <strong>Телефон:</strong>
+                                    <p><a href="tel:+79991234567">+7 (999) 123-45-67</a></p>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-icon">✉️</span>
+                                <div class="contact-details">
+                                    <strong>Email:</strong>
+                                    <p><a href="mailto:dance@school.ru">dance@school.ru</a></p>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-icon">🕒</span>
+                                <div class="contact-details">
+                                    <strong>Часы работы:</strong>
+                                    <p>Пн-Пт: 9:00-22:00<br>Сб-Вс: 10:00-20:00</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Панель администратора -->
+                <div id="adminPanel" class="admin-panel hidden">
+                    <div class="card">
+                        <h2>👑 Панель управления</h2>
+                        
+                        <div class="admin-section">
+                            <h3>➕ Добавить ученика</h3>
+                            <form id="addStudentForm" class="admin-form">
+                                <input type="text" id="newStudentName" placeholder="Имя ученика" required>
+                                <input type="number" id="newStudentTelegramId" placeholder="Telegram ID" required>
+                                <input type="text" id="newStudentUsername" placeholder="Username (необязательно)">
+                                <div class="form-row">
+                                    <input type="number" id="initialBalance" placeholder="Начальный баланс" value="8" required>
+                                    <input type="number" id="initialPayment" placeholder="Сумма платежа" value="3200" required>
+                                </div>
+                                <button type="submit" class="submit-btn">Добавить ученика</button>
+                            </form>
+                        </div>
+
+                        <div class="admin-section">
+                            <h3>✅ Отметить посещение</h3>
+                            <form id="markAttendanceForm" class="admin-form">
+                                <div class="form-row">
+                                    <select id="levelSelect" class="level-select">
+                                        <option value="Зук0">Зук0</option>
+                                        <option value="Зук1">Зук1</option>
+                                        <option value="расход">Расход</option>
+                                    </select>
+                                    <input type="number" id="attendanceTelegramId" placeholder="Telegram ID ученика" required>
+                                </div>
+                                <button type="submit" class="submit-btn">Отметить посещение</button>
+                                <div id="attendanceResult" class="result-message"></div>
+                            </form>
+                        </div>
+
+                        <div class="admin-section">
+                            <h3>📊 Быстрый доступ</h3>
+                            <div class="quick-admin-actions">
+                                <button class="admin-action-btn" onclick="showTab('schedule')">
+                                    📅 Управление расписанием
+                                </button>
+                                <button class="admin-action-btn" onclick="loadAllUsers()">
+                                    👥 Список учеников
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
+
+        <!-- Уведомления -->
+        <div id="notification" class="notification hidden"></div>
     </div>
-    
+
     <script src="script.js"></script>
 </body>
 </html>
