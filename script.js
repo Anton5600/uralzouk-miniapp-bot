@@ -175,7 +175,7 @@ async function loadAttendance() {
     }
 }
 
-// API вызовы
+// API вызовы с отладкой
 async function callAPI(action, data = {}) {
     try {
         const payload = {
@@ -183,6 +183,8 @@ async function callAPI(action, data = {}) {
             ...data
         };
 
+        console.log('📡 Отправка запроса:', { action, data, API_URL });
+        
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
@@ -191,10 +193,13 @@ async function callAPI(action, data = {}) {
             body: JSON.stringify(payload)
         });
 
-        return await response.json();
+        const result = await response.json();
+        console.log('✅ Ответ от API:', result);
+        
+        return result;
     } catch (error) {
-        console.error('API call error:', error);
-        return { error: 'Network error' };
+        console.error('❌ Ошибка API call:', error);
+        return { error: 'Network error: ' + error.message };
     }
 }
 
