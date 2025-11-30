@@ -1,73 +1,310 @@
-// --- КОНФИГУРАЦИЯ ---
-const API_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxJjLRl-PCXYCMu8QMfGWpm6FIK92qJrJhvbaZyYMakHnzjnjnUa6fZEclDYfn_eTi5rg/exec'; // <-- ВСТАВЬТЕ СЮДА НОВЫЙ URL РАЗВЕРТЫВАНИЯ!
+// Конфигурация
+const API_URL = 'https://script.google.com/macros/s/AKfycbx_UvFS-_tWFaq2tGL_rMUhsdcCe9x8ZgpPJPIVtmejVCv-NhenNJYw-0T-G67WdJNnPA/exec'; // Замените на ваш URL
 
-// Инициализация Telegram WebApp
-const webApp = window.Telegram.WebApp;
-webApp.ready();
+// Глобальные переменные
+let TelegramWebApp;
+let user;
+let currentUserData;
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Более надежный способ получения Telegram ID
-    const tgInitData = webApp.initDataUnsafe;
-    const userId = tgInitData.user?.id || tgInitData.receiver?.id;
-    
-    // Получаем элементы для отображения
-    const loading = document.getElementById('loading');
-    const studentData = document.getElementById('student-data');
-    const errorDiv = document.getElementById('error-message');
-
-    if (userId) {
-        fetchStudentData(userId, loading, studentData, errorDiv);
-    } else {
-        loading.style.display = 'none';
-        showError(errorDiv, 'Не удалось получить ваш Telegram ID. Пожалуйста, запустите Mini App из чата с ботом.');
-    }
-    
-    // Настраиваем главную кнопку Telegram
-    webApp.MainButton.setText('Закрыть').show().onClick(() => webApp.close());
+// Инициализация приложения
+document.addEventListener('DOMContentLoaded', function() {
+    initializeApp();
 });
 
-async function fetchStudentData(tgId, loading, studentData, errorDiv) {
+async function initializeApp() {
     try {
-        // Формируем URL для GET-запроса к Apps Script API
-        const url = `${API_ENDPOINT}?action=get_data&tg_id=${tgId}`;
+        // Инициализируем Telegram Web App
+        TelegramWebApp = window.Telegram.WebApp;
+        TelegramWebApp.ready();
+        TelegramWebApp.expand();
         
-        const response = await fetch(url);
+        // Получаем данные пользователя из Telegram
+        user = TelegramWebApp.initDataUnsafe?.user;
         
-        // Проверяем, что запрос был успешным (статус 200)
-        if (!response.ok) {
-            throw new Error(`Ошибка HTTP: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        loading.style.display = 'none';
-
-        if (data.status === 'success') {
-            const user = data.user;
-            document.getElementById('student-name').textContent = user.имя;
-            document.getElementById('balance-value').textContent = user.остаток;
-            document.getElementById('payment-amount').textContent = `${user.сумма_оплаты} ₽`;
-            document.getElementById('payment-date').textContent = user.дата_платежа;
-            document.getElementById('schedule').innerHTML = formatText(user.расписание);
-            document.getElementById('contacts').innerHTML = formatText(user.контакты);
-            studentData.style.display = 'block';
-        } else {
-            showError(errorDiv, data.error || 'Неизвестная ошибка при получении данных.');
+        if (!user) {
+            showError('Не удалось получить данные пользователя.');
+            return;
         }
 
+        console.log("User from Telegram:", user);
+        await loadAppData();
+        
     } catch (error) {
-        console.error('Ошибка при обращении к API:', error);
-        loading.style.display = 'none';
-        showError(errorDiv, 'Ошибка связи с сервером. Попробуйте позже. Детали: ' + error.message);
+        console.error('Initialization error:', error);
+        showError('Ошибка при загрузке приложения');
     }
 }
 
-function showError(element, message) {
-    element.textContent = message;
-    element.style.display = 'block';
+async function loadAppData() {
+    showLoading(true);
+
+    try {
+        // Загружаем данные пользователя
+        const userData = await callAPI('getUserData', { telegramId: user.id });
+        
+        if (userData.error) {
+            throw new Error(userData.error);
+        }
+
+        currentUserData = userData;
+        initializeUI(userData);
+        
+    } catch (error) {
+        console.error('Load app data error:', error);
+        showError('Ошибка загрузки данных: ' + error.message);
+    } finally {
+        showLoading(false);
+    }
 }
 
-// Функция для корректного отображения переносов строк
-function formatText(text) {
-    if (!text) return '';
-    return text.replace(/\n/g, '<br>');
+function initializeUI(userData) {
+    // Показываем основной контент
+    document.getElementById('mainContent').classList.remove('hidden');
+    
+    // Заполняем данные профиля
+    fillProfileData(userData);
+    
+    // Показываем панель админа если нужно
+    if (userData.role === 'Админ' || user.id === 1399930913) {
+        document.getElementById('adminPanel').classList.remove('hidden');
+        setupAdminListeners();
+    }
+    
+    // Загружаем дополнительные данные
+    loadSchedule();
+    loadAttendance();
+}
+
+function fillProfileData(userData) {
+    document.getElementById('userName').textContent = userData.name;
+    document.getElementById('userBalance').textContent = `${userData.balance} занятий`;
+    document.getElementById('balanceCount').textContent = userData.balance;
+    document.getElementById('lastPayment').textContent = `${userData.lastPaymentSum} руб. (${userData.lastPaymentDate})`;
+    document.getElementById('userRoleBadge').textContent = userData.role;
+    document.getElementById('userRole').textContent = userData.role;
+    
+    // Обновляем бейдж баланса
+    const balanceBadge = document.getElementById('balanceBadge');
+    if (userData.balance <= 2) {
+        balanceBadge.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5a52)';
+    }
+}
+
+// Навигация по вкладкам
+function showTab(tabName) {
+    // Скрываем все вкладки
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Убираем активный класс у всех кнопок
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Показываем выбранную вкладку
+    document.getElementById(tabName + 'Tab').classList.add('active');
+    
+    // Активируем кнопку
+    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+    
+    // Загружаем данные для вкладки если нужно
+    if (tabName === 'schedule') {
+        loadSchedule();
+    } else if (tabName === 'attendance') {
+        loadAttendance();
+    }
+}
+
+// Загрузка расписания
+async function loadSchedule() {
+    try {
+        const result = await callAPI('getSchedule');
+        const container = document.getElementById('scheduleContainer');
+        
+        if (result.error) {
+            container.innerHTML = '<p class="error-message">Ошибка загрузки расписания</p>';
+            return;
+        }
+        
+        if (!result.schedule || result.schedule.length === 0) {
+            container.innerHTML = '<p>Расписание пока не загружено</p>';
+            return;
+        }
+        
+        let html = '';
+        result.schedule.forEach(lesson => {
+            html += `
+                <div class="schedule-item">
+                    <div class="schedule-day">${lesson[0] || ''}</div>
+                    <div class="schedule-details">
+                        <div class="schedule-time">${lesson[1] || ''}</div>
+                        <div class="schedule-level">${lesson[2] || ''} • ${lesson[3] || ''}</div>
+                        <div class="schedule-teacher">${lesson[4] || ''}</div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+        
+    } catch (error) {
+        console.error('Error loading schedule:', error);
+        document.getElementById('scheduleContainer').innerHTML = '<p class="error-message">Ошибка загрузки расписания</p>';
+    }
+}
+
+// Загрузка посещений
+async function loadAttendance() {
+    try {
+        const result = await callAPI('getLevels');
+        const container = document.getElementById('attendanceContainer');
+        
+        if (result.error || !result.levels) {
+            container.innerHTML = '<p>Нет данных о посещениях</p>';
+            return;
+        }
+        
+        // Здесь можно добавить загрузку конкретных посещений пользователя
+        let html = '<p>Функция просмотра посещений в разработке</p>';
+        container.innerHTML = html;
+        
+    } catch (error) {
+        console.error('Error loading attendance:', error);
+        document.getElementById('attendanceContainer').innerHTML = '<p>Ошибка загрузки посещений</p>';
+    }
+}
+
+// API вызовы
+async function callAPI(action, data = {}) {
+    try {
+        const payload = {
+            action: action,
+            ...data
+        };
+
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload)
+        });
+
+        return await response.json();
+    } catch (error) {
+        console.error('API call error:', error);
+        return { error: 'Network error' };
+    }
+}
+
+// Админ функции
+function setupAdminListeners() {
+    // Форма добавления ученика
+    document.getElementById('addStudentForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await addStudent();
+    });
+
+    // Форма отметки посещения
+    document.getElementById('markAttendanceForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await markAttendance();
+    });
+}
+
+async function addStudent() {
+    const form = document.getElementById('addStudentForm');
+    const resultEl = document.getElementById('attendanceResult');
+    
+    const newStudentData = {
+        adminTelegramId: user.id,
+        name: document.getElementById('newStudentName').value,
+        telegramId: parseInt(document.getElementById('newStudentTelegramId').value),
+        telegramUsername: document.getElementById('newStudentUsername').value,
+        initialBalance: parseInt(document.getElementById('initialBalance').value),
+        paymentSum: parseInt(document.getElementById('initialPayment').value)
+    };
+
+    try {
+        const result = await callAPI('addStudent', { newStudentData });
+        
+        if (result.success) {
+            showNotification('Ученик успешно добавлен!', 'success');
+            form.reset();
+        } else {
+            showNotification('Ошибка: ' + result.error, 'error');
+        }
+    } catch (error) {
+        console.error('Error adding student:', error);
+        showNotification('Ошибка при добавлении ученика', 'error');
+    }
+}
+
+async function markAttendance() {
+    const form = document.getElementById('markAttendanceForm');
+    const resultEl = document.getElementById('attendanceResult');
+    resultEl.textContent = 'Обработка...';
+    resultEl.className = 'result-message';
+
+    const targetStudentTelegramId = parseInt(document.getElementById('attendanceTelegramId').value);
+    const selectedLevel = document.getElementById('levelSelect').value;
+
+    try {
+        const result = await callAPI('markAttendance', {
+            adminTelegramId: user.id,
+            targetStudentTelegramId: targetStudentTelegramId,
+            level: selectedLevel
+        });
+
+        if (result.success) {
+            resultEl.textContent = `✅ Посещение отмечено! Новый баланс: ${result.newBalance}`;
+            resultEl.className = 'result-message success';
+            document.getElementById('attendanceTelegramId').value = '';
+        } else {
+            resultEl.textContent = `❌ Ошибка: ${result.error}`;
+            resultEl.className = 'result-message error';
+        }
+    } catch (error) {
+        console.error('Error marking attendance:', error);
+        resultEl.textContent = '❌ Ошибка при отметке посещения';
+        resultEl.className = 'result-message error';
+    }
+}
+
+// Вспомогательные функции
+function showLoading(show) {
+    document.getElementById('loading').style.display = show ? 'flex' : 'none';
+    document.getElementById('mainContent').classList.toggle('hidden', show);
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.className = `notification ${type}`;
+    notification.classList.remove('hidden');
+    
+    setTimeout(() => {
+        notification.classList.add('hidden');
+    }, 3000);
+}
+
+function showError(message) {
+    showNotification(message, 'error');
+}
+
+// Инициализация навигации
+document.addEventListener('DOMContentLoaded', function() {
+    // Обработчики для табов
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const tabName = this.getAttribute('data-tab');
+            showTab(tabName);
+        });
+    });
+});
+
+// Заглушки для будущих функций
+async function loadAllUsers() {
+    showNotification('Функция в разработке', 'info');
 }
