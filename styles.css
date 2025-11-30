@@ -1,158 +1,493 @@
-/* --- Основные настройки --- */
-:root {
-    /* Используем стандартные переменные Telegram для авто-темы */
-    --bg-color: var(--tg-theme-bg-color, #ffffff);
-    --text-color: var(--tg-theme-text-color, #000000);
-    --hint-color: var(--tg-theme-hint-color, #999999);
-    --link-color: var(--tg-theme-link-color, #2481cc);
-    --button-color: var(--tg-theme-button-color, #3390ec);
-    --button-text-color: var(--tg-theme-button-text-color, #ffffff);
-    --secondary-bg-color: var(--tg-theme-secondary-bg-color, #f4f4f5);
-    
-    /* Кастомные цвета для акцентов (Танцевальный вайб) */
-    --accent-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --success-color: #4caf50;
-    --card-radius: 16px;
+/* Общие стили */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 body {
-    margin: 0;
-    padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background-color: var(--secondary-bg-color); /* Чуть темнее фона карточек */
-    color: var(--text-color);
-    -webkit-font-smoothing: antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #333;
+    line-height: 1.6;
+    min-height: 100vh;
 }
 
-.container {
-    max-width: 480px; /* Ограничение ширины для ПК */
-    margin: 0 auto;
-    padding: 20px 16px;
+#app {
+    max-width: 100%;
+    min-height: 100vh;
+    background: #f8f9fa;
 }
 
-/* --- Заголовки --- */
-h1 {
-    font-size: 24px;
-    font-weight: 800;
-    margin-bottom: 24px;
+/* Загрузка */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255,255,255,0.3);
+    border-top: 4px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-small {
     text-align: center;
-    background: var(--accent-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    padding: 20px;
+    color: #666;
 }
 
-h2 {
+.hidden {
+    display: none !important;
+}
+
+/* Хедер */
+.header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.logo {
     font-size: 18px;
     font-weight: 600;
-    margin: 0 0 12px 0;
-    color: var(--text-color);
 }
 
-/* --- Карточки --- */
-.card {
-    background-color: var(--bg-color);
-    border-radius: var(--card-radius);
+.user-badge {
+    background: rgba(255,255,255,0.2);
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Навигация */
+.tabs {
+    display: flex;
+    background: white;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 0 10px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 15px 10px;
+    border: none;
+    background: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.tab-btn.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+}
+
+/* Основной контент */
+.main-content {
     padding: 20px;
-    margin-bottom: 16px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s ease;
+    padding-bottom: 30px;
 }
 
-.card:active {
-    transform: scale(0.98);
+.tab-content {
+    display: none;
 }
 
-/* --- Блок Баланса (Акцентный) --- */
-.balance-card {
-    background: var(--accent-gradient);
-    color: white;
-    text-align: center;
+.tab-content.active {
+    display: block;
 }
 
-.balance-card h2 {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 16px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 8px;
+/* Карточки */
+.card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    border: 1px solid #f0f0f0;
 }
 
-.balance-value {
-    font-size: 48px;
-    font-weight: 800;
-    line-height: 1;
+/* Профиль */
+.profile-card .profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
 }
 
-.balance-unit {
+.profile-card h2 {
+    color: #333;
     font-size: 18px;
-    font-weight: 500;
-    opacity: 0.8;
 }
 
-/* --- Информационные строки --- */
-.info-row {
+.balance-badge {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.info-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 8px 0;
-    border-bottom: 1px solid var(--secondary-bg-color);
+    border-bottom: 1px solid #f5f5f5;
 }
 
-.info-row:last-child {
+.info-item:last-child {
     border-bottom: none;
 }
 
 .label {
-    color: var(--hint-color);
+    color: #666;
     font-size: 14px;
 }
 
 .value {
     font-weight: 600;
-    font-size: 15px;
+    color: #333;
 }
 
-/* --- Расписание и Контакты --- */
-.schedule-text, .contacts-text {
-    font-size: 15px;
-    line-height: 1.5;
-    white-space: pre-line; /* Сохраняет переносы строк */
+.balance-value {
+    color: #4CAF50;
+    font-size: 16px;
 }
 
-.contact-link {
-    color: var(--link-color);
+.role-badge {
+    background: #e3f2fd;
+    color: #1976d2;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Быстрые действия */
+.quick-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.action-btn {
+    background: white;
+    border: 2px solid #667eea;
+    color: #667eea;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.action-btn:active {
+    background: #667eea;
+    color: white;
+    transform: scale(0.98);
+}
+
+/* Расписание */
+.schedule-container {
+    margin-top: 15px;
+}
+
+.schedule-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.schedule-item:last-child {
+    border-bottom: none;
+}
+
+.schedule-day {
+    font-weight: 600;
+    color: #333;
+}
+
+.schedule-time {
+    color: #667eea;
+    font-weight: 500;
+}
+
+.schedule-details {
+    text-align: right;
+}
+
+.schedule-level {
+    font-size: 14px;
+    color: #666;
+}
+
+.schedule-teacher {
+    font-size: 12px;
+    color: #999;
+}
+
+/* Посещения */
+.attendance-container {
+    margin-top: 15px;
+}
+
+.level-attendance {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+
+.level-attendance h4 {
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.visits {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.visit-badge {
+    background: #4CAF50;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Контакты */
+.contact-info {
+    margin-top: 15px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.contact-item:last-child {
+    border-bottom: none;
+}
+
+.contact-icon {
+    font-size: 20px;
+    margin-top: 2px;
+}
+
+.contact-details strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.contact-details a {
+    color: #667eea;
     text-decoration: none;
 }
 
-/* --- Загрузка и Ошибки --- */
-#loading {
-    text-align: center;
-    color: var(--hint-color);
-    margin-top: 50px;
-    font-size: 16px;
-    animation: pulse 1.5s infinite;
-}
-
-.error-block {
-    background-color: rgba(255, 82, 82, 0.1);
-    color: #ff5252;
-    padding: 15px;
-    border-radius: 12px;
-    text-align: center;
-    font-size: 14px;
+/* Панель администратора */
+.admin-panel {
     margin-top: 20px;
 }
 
-/* --- Анимации --- */
-@keyframes pulse {
-    0% { opacity: 0.6; }
-    50% { opacity: 1; }
-    100% { opacity: 0.6; }
+.admin-section {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f0f0f0;
 }
 
-.fade-in {
-    animation: fadeIn 0.5s ease-in;
+.admin-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.admin-section h3 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.admin-form input, .level-select {
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.admin-form input:focus, .level-select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.submit-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.submit-btn:active {
+    transform: scale(0.98);
+}
+
+.result-message {
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.result-message.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.result-message.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.quick-admin-actions {
+    display: grid;
+    gap: 10px;
+}
+
+.admin-action-btn {
+    background: white;
+    border: 2px solid #667eea;
+    color: #667eea;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.admin-action-btn:active {
+    background: #667eea;
+    color: white;
+}
+
+/* Уведомления */
+.notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    z-index: 1000;
+    max-width: 90%;
+    text-align: center;
+}
+
+.notification.success {
+    background: #4CAF50;
+}
+
+.notification.error {
+    background: #f44336;
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+    .main-content {
+        padding: 15px;
+    }
+    
+    .card {
+        padding: 15px;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+    
+    .header-content {
+        padding: 0 15px;
+    }
+    
+    .tab-btn {
+        font-size: 13px;
+        padding: 12px 8px;
+    }
+}
+
+/* Плавные анимации */
+.tab-content {
+    animation: fadeIn 0.3s ease;
 }
 
 @keyframes fadeIn {
