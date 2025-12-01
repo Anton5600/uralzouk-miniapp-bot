@@ -34,7 +34,22 @@ async function initializeApp() {
         showError('Ошибка при загрузке приложения');
     }
 }
+// Функции для тестирования API
+async function testAPI() {
+    console.log('🧪 Тестируем getUserData...');
+    const result = await callAPI('getUserData', { telegramId: 856749391 });
+    document.getElementById('debugResult').innerHTML = 
+        '<pre>' + JSON.stringify(result, null, 2) + '</pre>';
+    console.log('Результат теста:', result);
+}
 
+async function testScheduleAPI() {
+    console.log('🧪 Тестируем getSchedule...');
+    const result = await callAPI('getSchedule');
+    document.getElementById('debugResult').innerHTML = 
+        '<pre>' + JSON.stringify(result, null, 2) + '</pre>';
+    console.log('Результат теста расписания:', result);
+}
 async function loadAppData() {
     showLoading(true);
 
