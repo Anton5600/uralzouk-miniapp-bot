@@ -190,7 +190,7 @@ async function loadAttendance() {
     }
 }
 
-// API вызовы с отладкой
+// API вызовы
 async function callAPI(action, data = {}) {
     try {
         const payload = {
@@ -198,8 +198,9 @@ async function callAPI(action, data = {}) {
             ...data
         };
 
-        console.log('📡 Отправка запроса:', { action, data, API_URL });
+        console.log('📡 Sending to API:', { action, data });
         
+        // Важно: Используем режим 'no-cors' или обычный fetch
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
@@ -208,16 +209,38 @@ async function callAPI(action, data = {}) {
             body: JSON.stringify(payload)
         });
 
-        const result = await response.json();
-        console.log('✅ Ответ от API:', result);
+        console.log('✅ Response status:', response.status);
+        
+        // Пробуем получить текст
+        const text = await response.text();
+        console.log('📄 Response text:', text.substring(0, 200));
+        
+        // Пробуем распарсить JSON
+        let result;
+        try {
+            result = JSON.parse(text);
+        } catch (parseError) {
+            console.error('JSON parse error:', parseError);
+            // Если это не JSON, возможно это HTML страница с ошибкой
+            if (text.includes('<html') || text.includes('Google')) {
+                throw new Error('API вернул HTML вместо JSON. Проверьте URL и доступ.');
+            }
+            result = { error: 'Invalid JSON response', text: text.substring(0, 100) };
+        }
         
         return result;
+        
     } catch (error) {
-        console.error('❌ Ошибка API call:', error);
-        return { error: 'Network error: ' + error.message };
+        console.error('❌ API call error:', error);
+        
+        // Возвращаем структурированную ошибку
+        return { 
+            error: 'API Error: ' + error.message,
+            details: error.toString(),
+            action: action
+        };
     }
 }
-
 // Админ функции
 function setupAdminListeners() {
     // Форма добавления ученика
@@ -328,3 +351,30 @@ document.addEventListener('DOMContentLoaded', function() {
 async function loadAllUsers() {
     showNotification('Функция в разработке', 'info');
 }
+// Функция для тестирования всех endpoint'ов
+async function testAllEndpoints() {
+    console.log('🧪 Тестируем все endpoint\'ы...');
+    
+    const tests = [
+        { action: 'getUserData', data: { telegramId: 856749391 } },
+        { action: 'getSchedule', data: {} }
+    ];
+    
+    for (const test of tests) {
+        console.log(`\n🔍 Тестируем ${test.action}...`);
+        const result = await callAPI(test.action, test.data);
+        console.log(`Результат ${test.action}:`, result);
+        
+        if (result.error) {
+            console.error(`❌ ${test.action} failed:`, result.error);
+        } else {
+            console.log(`✅ ${test.action} успешен`);
+        }
+    }
+}
+
+// Запустить тест при загрузке (для отладки)
+setTimeout(() => {
+    console.log('Авто-тест API через 2 секунды...');
+    testAllEndpoints();
+}, 2000);
