@@ -1,5 +1,5 @@
 // Конфигурация
-const API_URL = 'https://script.google.com/macros/s/AKfycbyJ4_QQGWnvhtaIda4kLy5PWlEu2h9zPugH-NUKyWpBs0WaoX7FJVkygisprLJgZ0CN/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyHFflRoXLnkaRorAC5fH2DFLefN8pCDLqTHHAy0Pweg3OFSApre5JTNfzPN-Zzk4QAWA/exec';
 
 // Глобальные переменные
 let TelegramWebApp;
