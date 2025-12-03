@@ -6,6 +6,37 @@
     <title>Танцы 18+</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<!-- В хедере после логотипа -->
+<div id="connectionStatus" style="font-size: 12px; padding: 2px 8px; border-radius: 10px; background: #4CAF50; color: white; margin-left: 10px;">
+    ✅ API подключен
+</div>
+
+<script>
+// Функция проверки соединения
+async function checkConnection() {
+    try {
+        const response = await fetch(API_URL);
+        const text = await response.text();
+        
+        const statusElement = document.getElementById('connectionStatus');
+        if (text.includes('API работает')) {
+            statusElement.style.background = '#4CAF50';
+            statusElement.textContent = '✅ API подключен';
+        } else {
+            statusElement.style.background = '#ff9800';
+            statusElement.textContent = '⚠️ API отвечает';
+        }
+    } catch (error) {
+        const statusElement = document.getElementById('connectionStatus');
+        statusElement.style.background = '#f44336';
+        statusElement.textContent = '❌ Нет подключения';
+    }
+}
+
+// Проверяем соединение при загрузке
+setTimeout(checkConnection, 1000);
+</script>
+    
 </head>
 <body>
     <div id="app">
